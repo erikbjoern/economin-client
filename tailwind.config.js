@@ -1,15 +1,16 @@
-const colors = require('tailwindcss/colors')
+const colors = require("tailwindcss/colors");
 
 module.exports = {
   theme: {
-    colors: {
-      amber: colors.amber,
-      blue: colors.blue,
-      green: colors.green,
-      yellow: colors.yellow,
-      emerald: colors.emerald,
-      trueGray: colors.trueGray,
-      rose: colors.rose,
-    }
-  }
-}
+    colors,
+    extend: {
+      gridTemplateColumns: {
+        "auto-3": "repeat(3, auto)",
+      },
+      fontFamily: {
+        main:
+          '"Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif',
+      },
+    },
+  },
+};

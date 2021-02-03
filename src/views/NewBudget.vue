@@ -1,34 +1,55 @@
 <template>
-  <div class="h-screen w-screen bg-yellow-500 pt-10">
-    <div class="w-4/5 mx-auto flex flex-col items-center">
-      <h1 class="text-center text-lg">Ny budget:</h1>
-      <form class="mt-10 flex flex-col space-y-10">
-        <div>
-          <div class="flex space-x-28">
-            <label>Från:</label>
-            <label class="mr-32">Till:</label>
-          </div>
+  <div class="h-screen w-screen bg-cyan-800 pt-10">
+    <div class="h-screen mx-auto flex flex-col items-center">
+      <h1 class="text-center text-lg text-gray-200 font-semibold font-main">Ny budget</h1>
+      <form class="flex flex-col h-1/2 justify-evenly mt-8">
+        <div class="formgrid grid grid-cols-auto-3 gap-2">
+          <label class="font-semibold text-gray-200 mb-6">Från:</label>
           <functional-calendar
-            :is-date-range="true"
+            class="col-span-2"
+            id="startDay"
+            :is-date-picker="true"
             :is-modal="true"
             :transition="true"
             :is-auto-closeable="true"
             :is-typeable="true"
             :is-layout-expandable="true"
+            :placeholder="this.today"
+            v-model="calendarData"
           ></functional-calendar>
-        </div>
-        <div class="flex space-x-5">
-          <label htmlFor="length">Längd:</label>
-          <input id="length" type="number" class="w-14" />
-          <select name="unit" id="unit">
-            <option value="DAYS">dagar</option>
-            <option value="MONTHS">månader</option>
+          <label htmlFor="length" class="font-semibold text-gray-200"
+            >Längd:</label
+          >
+          <input
+            id="length"
+            type="number"
+            class="w-14 rounded-sm text-gray-600 text-right pr-px"
+            v-model="length"
+          />
+          <select
+            name="unit"
+            id="unit"
+            class="rounded-sm text-gray-600"
+            v-model="this.unit"
+          >
+            <option value="DAYS">{{ computedDays }}</option>
+            <option value="MONTHS">{{ computedMonths }} </option>
           </select>
-        </div>
-        <div class="flex space-x-5">
-          <label htmlFor="amount">Summa:</label>
-          <input id="amount" type="number" class="w-36"/>
-          <select name="currency" id="currency">
+          <label htmlFor="amount" class="font-semibold text-gray-200"
+            >Summa:</label
+          >
+          <input
+            id="amount"
+            type="number"
+            class="w-14 rounded-sm text-gray-600 text-right pr-px"
+            v-model="amount"
+            step="100"
+          />
+          <select
+            name="currency"
+            id="currency"
+            class="rounded-sm text-gray-600"
+          >
             <option value="SEK">kr</option>
             <option value="USD">$</option>
             <option value="EUR">€</option>
@@ -36,7 +57,18 @@
             <option value="YEN">¥</option>
           </select>
         </div>
-        <button type="submit" class="bg-green-600 rounded w-36 mx-auto text-yellow-400 pb-1">Spara</button>
+        <div class="flex items-center justify-center gap-3">
+          <input id="recurring" name="recurring" type="checkbox" />
+          <label htmlFor="recurring" class="text-gray-200"
+            >Upprepa automatiskt</label
+          >
+        </div>
+        <button
+          type="submit"
+          class="bg-lime-400 rounded w-36 mx-auto text-cyan-900 font-semibold pb-1"
+        >
+          Spara
+        </button>
       </form>
     </div>
   </div>
@@ -50,18 +82,36 @@ export default {
   components: {
     FunctionalCalendar,
   },
+  data() {
+    return {
+      calendarData: {},
+      currentDay: new Date().getDay(),
+      currentMonth: new Date().getMonth(),
+      currentYear: new Date().getFullYear(),
+      length: 1,
+      unit: "MONTHS",
+      amount: 1000,
+    };
+  },
+  computed: {
+    today() {
+      return (
+        this.currentDay + "/" + (this.currentMonth + 1) + "/" + this.currentYear
+      );
+    },
+    computedMonths() {
+      return this.length === 1 ? "månad" : "månader";
+    },
+    computedDays() {
+      return this.length === 1 ? "dag" : "dagar";
+    },
+  },
+  methods: {},
 };
 </script>
 
-<style scoped>
-h1,
-h2 {
-  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
-    "Lucida Sans", Arial, sans-serif;
-}
-</style>
-
 <style>
+/* Changes the color of 'today' in the date picker */
 .vfc-week .vfc-day span.vfc-span-day.vfc-today {
   background-color: rgb(158, 182, 151) !important;
 }
