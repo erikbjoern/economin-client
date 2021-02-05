@@ -1,8 +1,13 @@
 <template>
   <div class="h-screen w-screen bg-cyan-800 pt-10">
     <div class="h-screen mx-auto flex flex-col items-center">
-      <h1 class="text-center text-lg text-gray-200 font-semibold font-main">Ny budget</h1>
-      <form class="flex flex-col h-1/2 justify-evenly mt-8">
+      <h1 class="text-center text-lg text-gray-200 font-semibold font-main">
+        Ny budget
+      </h1>
+      <form
+        @submit="createBudget"
+        class="flex flex-col h-1/2 justify-evenly mt-8"
+      >
         <div class="formgrid grid grid-cols-auto-3 gap-2">
           <label class="font-semibold text-gray-200 mb-6">Från:</label>
           <functional-calendar
@@ -76,6 +81,7 @@
 
 <script>
 import { FunctionalCalendar } from "vue-functional-calendar";
+import CREATE_BUDGET from "../graphql/mutations/createBudget.gql";
 
 export default {
   name: "NewBudget",
@@ -86,7 +92,7 @@ export default {
     return {
       calendarData: {},
       currentDay: new Date().getDay(),
-      currentMonth: new Date().getMonth(),
+      currentMonth: new Date().getMonth() + 1,
       currentYear: new Date().getFullYear(),
       length: 1,
       unit: "MONTHS",
@@ -95,9 +101,7 @@ export default {
   },
   computed: {
     today() {
-      return (
-        this.currentDay + "/" + (this.currentMonth + 1) + "/" + this.currentYear
-      );
+      return [this.currentDay, this.currentMonth, this.currentYear].join("/");
     },
     computedMonths() {
       return this.length === 1 ? "månad" : "månader";
@@ -105,8 +109,43 @@ export default {
     computedDays() {
       return this.length === 1 ? "dag" : "dagar";
     },
+    startDay() {
+      return this.getPartFromDate(/^\d+/) || this.currentDay;
+    },
+    startMonth() {
+      return this.getPartFromDate(/(?<=\/)\d+(?=\/)/) || this.currentMonth;
+    },
+    startYear() {
+      return this.getPartFromDate(/\d+$/) || this.currentYear;
+    },
   },
-  methods: {},
+  methods: {
+    getPartFromDate(regex) {
+      return this.calendarData.selectedDate?.match(regex)[0];
+    },
+    async createBudget(event) {
+      event.preventDefault();
+
+      try {
+        const result = await this.$apollo.mutate({
+          mutation: CREATE_BUDGET,
+          variables: {
+            input: {
+              amount: this.amount,
+              startDay: this.startDay,
+              startMonth: this.startMonth,
+              startYear: this.startYear,
+              length: this.length,
+              unit: this.unit,
+              recurring: false,
+            },
+          },
+        });
+      } catch (error) {
+        debugger;
+      }
+    },
+  },
 };
 </script>
 
