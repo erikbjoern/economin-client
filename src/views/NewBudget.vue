@@ -110,13 +110,13 @@ export default {
       return this.length === 1 ? "dag" : "dagar";
     },
     startDay() {
-      return this.getPartFromDate(/^\d+/) || this.currentDay;
+      return parseInt(this.getPartFromDate(/^\d+/)) || this.currentDay;
     },
     startMonth() {
-      return this.getPartFromDate(/(?<=\/)\d+(?=\/)/) || this.currentMonth;
+      return parseInt(this.getPartFromDate(/(?<=\/)\d+(?=\/)/)) || this.currentMonth;
     },
     startYear() {
-      return this.getPartFromDate(/\d+$/) || this.currentYear;
+      return parseInt(this.getPartFromDate(/\d+$/)) || this.currentYear;
     },
   },
   methods: {
@@ -141,6 +141,8 @@ export default {
             },
           },
         });
+
+        this.$store.commit('UPDATE_CURRENT_BUDGET', result.data.createBudget)
       } catch (error) {
         debugger;
       }
