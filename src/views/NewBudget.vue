@@ -2,16 +2,29 @@
   <div class="h-screen w-screen bg-cyan-800 pt-10">
     <div class="h-screen mx-auto flex flex-col items-center">
       <div v-if="$store.state.currentBudget.id">
-        <h1 class="text-center text-lg text-gray-200 font-semibold font-main">Aktuell budget</h1>
-        <h2 class="text-center text-gray-200 font-semibold font-main mt-5">{{ budgetDates }}</h2>
-        <h2 class="text-center text-gray-200 font-semibold font-main mt-5">{{ $store.state.currentBudget.amount }}kr</h2>
-        <h2 class="text-center text-gray-200 font-semibold font-main mt-5">{{ differenceInDays + " " + dayOrDays(differenceInDays) }}</h2>
-
+        <h1 class="text-center text-lg text-gray-200 font-semibold font-main">
+          Aktuell budget
+        </h1>
+        <h2 class="text-center text-gray-200 font-semibold font-main mt-5">
+          {{ budgetDates }}
+        </h2>
+        <h2 class="text-center text-gray-200 font-semibold font-main mt-5">
+          {{ $store.state.currentBudget.amount }}kr
+        </h2>
+        <h2 class="text-center text-gray-200 font-semibold font-main mt-5">
+          {{ differenceInDays + " " + dayOrDays(differenceInDays) }}
+        </h2>
       </div>
       <div v-if="!$store.state.currentBudget.id" class="h-screen">
         <h1 class="text-center text-lg text-gray-200 font-semibold font-main">
           Ny budget
         </h1>
+        <h2
+          v-show="hasAnyErrors"
+          class="text-gray-200 w-56 mt-5 -mb-12 bg-emerald-700 rounded-lg p-5 mx-auto shadow"
+        >
+          {{ Object.values(errors).join() }}
+        </h2>
         <form
           @submit="createBudget"
           class="flex flex-col h-1/2 justify-evenly mt-8"
@@ -36,13 +49,13 @@
             <input
               id="length"
               type="number"
-              class="w-14 rounded-sm text-gray-600 text-right pr-px"
+              class="w-14 rounded-sm text-gray-600 text-right pr-px shadow"
               v-model="length"
             />
             <select
               name="unit"
               id="unit"
-              class="rounded-sm text-gray-600"
+              class="rounded-sm text-gray-600 shadow"
               v-model="unit"
             >
               <option value="DAYS">{{ dayOrDays(length) }}</option>
@@ -54,14 +67,14 @@
             <input
               id="amount"
               type="number"
-              class="w-14 rounded-sm text-gray-600 text-right pr-px"
+              class="w-14 rounded-sm text-gray-600 text-right pr-px shadow"
               v-model="amount"
               step="100"
             />
             <select
               name="currency"
               id="currency"
-              class="rounded-sm text-gray-600"
+              class="rounded-sm text-gray-600 shadow"
             >
               <option value="SEK">kr</option>
               <option value="USD">$</option>
@@ -71,14 +84,19 @@
             </select>
           </div>
           <div class="flex items-center justify-center gap-3">
-            <input id="recurring" name="recurring" type="checkbox" />
+            <input
+              id="recurring"
+              name="recurring"
+              type="checkbox"
+              class="shadow"
+            />
             <label htmlFor="recurring" class="text-gray-200"
               >Upprepa automatiskt</label
             >
           </div>
           <button
             type="submit"
-            class="bg-lime-400 rounded w-36 mx-auto text-cyan-900 font-semibold pb-1"
+            class="bg-emerald-500 shadow-lg rounded w-36 mx-auto text-cyan-900 font-semibold pb-px"
           >
             Spara
           </button>
@@ -91,7 +109,11 @@
 <script>
 import { FunctionalCalendar } from "vue-functional-calendar";
 import CREATE_BUDGET from "../graphql/mutations/createBudget.gql";
-import { formatBudgetDates, calculateDifference } from "../helpers/budgetDates";
+import {
+  calculateEndDate,
+  formatDates,
+  calculateDifference,
+} from "../helpers/budgetDates";
 
 export default {
   name: "NewBudget",
@@ -100,21 +122,23 @@ export default {
   },
   data() {
     return {
+      amount: 1000,
       calendarData: {},
       currentDay: new Date().getDay(),
       currentMonth: new Date().getMonth() + 1,
       currentYear: new Date().getFullYear(),
+      errors: {},
+      hasAnyErrors: false,
       length: 1,
       unit: "MONTHS",
-      amount: 1000,
     };
   },
   computed: {
     budgetDates() {
-      return formatBudgetDates(this.$store.state.currentBudget)
+      return formatDates(this.$store.state.currentBudget);
     },
     differenceInDays() {
-      return calculateDifference(this.$store.state.currentBudget)
+      return calculateDifference(this.$store.state.currentBudget);
     },
     today() {
       return [this.currentDay, this.currentMonth, this.currentYear].join("/");
@@ -164,6 +188,49 @@ export default {
       } catch (error) {
         debugger;
       }
+    },
+    checkEndDate() {
+      const { startDay, startMonth, startYear, length, unit } = this;
+      const { endDate } = calculateEndDate({
+        startDay,
+        startMonth,
+        startYear,
+        length,
+        unit,
+      });
+
+      if (
+        new Date() > endDate &&
+        new Date().toString().slice(0, 15) != endDate.toString().slice(0, 15)
+      ) {
+        this.$set(
+          this.errors,
+          "endsBeforeToday",
+          "Din budget kan inte sluta innan dagens datum. Välj ett senare startdatum eller en längre period"
+        );
+      } else {
+        this.$delete(this.errors, "endsBeforeToday");
+      }
+    },
+  },
+  watch: {
+    calendarData: {
+      handler() {
+        this.checkEndDate();
+      },
+      deep: true,
+    },
+    errors: {
+      handler() {
+        this.hasAnyErrors = Object.values(this.errors).some((v) => v);
+      },
+      deep: true,
+    },
+    length() {
+      this.checkEndDate();
+    },
+    unit() {
+      this.checkEndDate();
     },
   },
 };

@@ -1,4 +1,4 @@
-import { formatBudgetDates, calculateDifference } from "../../src/helpers/budgetDates"
+import { formatDates, calculateDifference } from "../../src/helpers/budgetDates"
 
 const oneMonthBudget = {
   startDay: 1,
@@ -48,20 +48,20 @@ const januaryToDecemberNextYear = {
   unit: "MONTHS"
 }
 
-describe("formatBudgetDates", () => {
+describe("formatDates", () => {
   describe("for dates within the same year", () => {
     it("returns day of the week, day and month for both dates", () => {
-      expect(formatBudgetDates(oneMonthBudget)).toMatch(/fre 1 jan - sön 31 jan/)
-      expect(formatBudgetDates(twoMonthBudget)).toMatch(/sön 28 feb - tis 27 apr/)
-      expect(formatBudgetDates(sevenDayBudget)).toMatch(/tor 25 feb - ons 3 mars/)
-      expect(formatBudgetDates(thirtyDayBudget)).toMatch(/mån 29 mars - tis 27 apr/)
+      expect(formatDates(oneMonthBudget)).toMatch(/fre 1 jan - sön 31 jan/)
+      expect(formatDates(twoMonthBudget)).toMatch(/sön 28 feb - tis 27 apr/)
+      expect(formatDates(sevenDayBudget)).toMatch(/tor 25 feb - ons 3 mars/)
+      expect(formatDates(thirtyDayBudget)).toMatch(/mån 29 mars - tis 27 apr/)
     })
   })
 
   describe("for dates that reach into another year", () => {
     it("returns day, month and year for both dates", () => {
-      expect(formatBudgetDates(decemberToJanuaryBudget)).toMatch(/29 dec 2020 - 28 jan 2021/)
-      expect(formatBudgetDates(januaryToDecemberNextYear)).toMatch(/29 jan 2021 - 28 dec 2022/)
+      expect(formatDates(decemberToJanuaryBudget)).toMatch(/29 dec 2020 - 28 jan 2021/)
+      expect(formatDates(januaryToDecemberNextYear)).toMatch(/29 jan 2021 - 28 dec 2022/)
     })
   })
 })

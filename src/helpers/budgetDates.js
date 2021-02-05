@@ -1,5 +1,5 @@
-const calculateEndDate = (currentBudget) => {
-  const { startDay, startMonth, startYear, unit, length } = currentBudget;
+export const calculateEndDate = (budget) => {
+  const { startDay, startMonth, startYear, unit, length } = budget;
 
   const startDate = new Date(Date.UTC(startYear, startMonth - 1, startDay));
   let endDay, endMonth, endYear, endDate
@@ -24,19 +24,19 @@ const calculateEndDate = (currentBudget) => {
   };
 };
 
-export const formatBudgetDates = (currentBudget) => {
+export const formatDates = (budget) => {
   const {
     startDay,
     startMonth,
     startYear
-  } = currentBudget
+  } = budget
   const {
     startDate,
     endDate,
     endDay,
     endMonth,
     endYear,
-  } = calculateEndDate(currentBudget);
+  } = calculateEndDate(budget);
 
   const days = ["sön", "mån", "tis", "ons", "tor", "fre", "lör"];
   const months = [
@@ -79,8 +79,8 @@ export const formatBudgetDates = (currentBudget) => {
       ].join(" ");
 };
 
-export const calculateDifference = (currentBudget) => {
-  const { startDate, endDate } = calculateEndDate(currentBudget);
+export const calculateDifference = (budget) => {
+  const { startDate, endDate } = calculateEndDate(budget);
 
   const difference = Math.floor(
     ((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
