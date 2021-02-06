@@ -23,7 +23,6 @@
             :is-layout-expandable="true"
             :placeholder="today"
             v-model="calendarData"
-            ref="calendar"
           ></functional-calendar>
           <label for="length" class="font-semibold text-gray-200">Längd:</label>
           <input
@@ -101,7 +100,7 @@
       </div>
       <button
         type="submit"
-        class="bg-emerald-500 shadow-lg rounded w-36 mx-auto text-cyan-900 font-semibold pb-px transition-opacity"
+        class="hover:opacity-80 hover:shadow-lg bg-emerald-500 shadow-md rounded w-36 mx-auto text-cyan-900 font-semibold pb-px transition-opacity"
         :class="{
           'opacity-50': hasAnyErrors,
           'pointer-events-none': hasAnyErrors,
@@ -127,7 +126,7 @@ export default {
     return {
       amount: 1000,
       calendarData: {},
-      currentDay: new Date().getDay(),
+      currentDay: new Date().getDate(),
       currentMonth: new Date().getMonth() + 1,
       currentYear: new Date().getFullYear(),
       errors: {},
@@ -166,12 +165,7 @@ export default {
     async createBudget(event) {
       event.preventDefault();
 
-      if (this.hasAnyErrors) {
-        console.log(
-          "Returning from createBudget because of present errors, apparently"
-        );
-        return;
-      }
+      if (this.hasAnyErrors) return;
 
       this.isSaving = true;
 
