@@ -11,6 +11,9 @@ module.exports = {
         main:
           '"Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif',
       },
+      transitionProperty: {
+        'max-h': 'max-height',
+      },
     },
   },
 };

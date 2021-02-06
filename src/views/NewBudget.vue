@@ -16,18 +16,25 @@
         </h2>
       </div>
       <div v-if="!$store.state.currentBudget.id" class="h-screen">
-        <h1 class="text-center text-lg text-gray-200 font-semibold font-main">
+        <h1
+          class="text-center text-lg text-gray-200 font-semibold font-main mb-5"
+        >
           Ny budget
         </h1>
-        <h2
-          v-show="hasAnyErrors"
-          class="text-gray-200 w-56 mt-5 -mb-12 bg-emerald-700 rounded-lg p-5 mx-auto shadow"
+        <div
+          class="max-h-0 min-h-0 transition-min-max-h duration-300 text-gray-200 w-56 bg-emerald-700 rounded-lg mx-auto shadow"
+          :class="{ 'max-h-56': hasAnyErrors }"
         >
-          {{ Object.values(errors).join() }}
-        </h2>
+          <p
+            class="p-5 opacity-0 transition-opacity duration-300"
+            :class="{ 'opacity-100': hasAnyErrors }"
+          >
+            {{ Object.values(errors).join(". ") || ":)" }}
+          </p>
+        </div>
         <form
           @submit="createBudget"
-          class="flex flex-col h-1/2 justify-evenly mt-8"
+          class="flex flex-col h-1/3 justify-between mt-8"
         >
           <div class="formgrid grid grid-cols-auto-3 gap-2">
             <label class="font-semibold text-gray-200 mb-6">Från:</label>
@@ -69,7 +76,7 @@
               type="number"
               class="w-14 rounded-sm text-gray-600 text-right pr-px shadow"
               v-model="amount"
-              step="100"
+              min="1"
             />
             <select
               name="currency"
@@ -189,7 +196,18 @@ export default {
         debugger;
       }
     },
-    checkEndDate() {
+    validateAmount() {
+      if (this.amount <= 0) {
+        this.$set(
+          this.errors,
+          "nonPositiveAmount",
+          "Vänligen ange en summa pengar för din budget"
+        );
+      } else {
+        this.$delete(this.errors, "nonPositiveAmount");
+      }
+    },
+    validateEndDate() {
       const { startDay, startMonth, startYear, length, unit } = this;
       const { endDate } = calculateEndDate({
         startDay,
@@ -214,10 +232,9 @@ export default {
     },
   },
   watch: {
+    amount: "validateAmount",
     calendarData: {
-      handler() {
-        this.checkEndDate();
-      },
+      handler: "validateEndDate",
       deep: true,
     },
     errors: {
@@ -226,12 +243,8 @@ export default {
       },
       deep: true,
     },
-    length() {
-      this.checkEndDate();
-    },
-    unit() {
-      this.checkEndDate();
-    },
+    length: "validateEndDate",
+    unit: "validateEndDate",
   },
 };
 </script>
