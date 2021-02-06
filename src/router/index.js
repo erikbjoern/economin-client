@@ -1,14 +1,14 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import NewBudget from '../views/NewBudget.vue'
+import ManageBudget from '../views/ManageBudget.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/New',
-    name: 'NewBudget',
-    component: NewBudget
+    path: '/budget',
+    name: 'ManageBudget',
+    component: ManageBudget
   },
   // {
   //   path: '/about',
