@@ -21,20 +21,9 @@
         >
           Ny budget
         </h1>
-        <div
-          class="max-h-0 min-h-0 transition-min-max-h duration-300 text-gray-200 w-56 bg-emerald-700 rounded-lg mx-auto shadow"
-          :class="{ 'max-h-56': hasAnyErrors }"
-        >
-          <p
-            class="p-5 opacity-0 transition-opacity duration-300"
-            :class="{ 'opacity-100': hasAnyErrors }"
-          >
-            {{ Object.values(errors).join(". ") || ":)" }}
-          </p>
-        </div>
         <form
           @submit="createBudget"
-          class="flex flex-col h-1/3 justify-between mt-8"
+          class="flex flex-col space-y-10 mt-8"
         >
           <div class="formgrid grid grid-cols-auto-3 gap-2">
             <label class="font-semibold text-gray-200 mb-6">Från:</label>
@@ -68,6 +57,17 @@
               <option value="DAYS">{{ dayOrDays(length) }}</option>
               <option value="MONTHS">{{ monthOrMonths(length) }} </option>
             </select>
+            <div
+              class="pointer-events-none col-span-full max-h-0 transition-min-max-h duration-400 text-white w-56 bg-red-900 opacity-80 rounded-lg mx-auto shadow"
+              :class="{ 'max-h-56': errors.dateError }"
+            >
+              <p
+                class="p-5 opacity-0 transition-opacity duration-400"
+                :class="{ 'opacity-100': errors.dateError }"
+              >
+                {{ errors.dateError || ":)" }}
+              </p>
+            </div>
             <label htmlFor="amount" class="font-semibold text-gray-200"
               >Summa:</label
             >
@@ -89,6 +89,17 @@
               <option value="GBP">£</option>
               <option value="YEN">¥</option>
             </select>
+            <div
+              class="pointer-events-none col-span-full max-h-0 transition-min-max-h duration-400 text-white opacity-80 w-56 bg-red-900 rounded-lg mx-auto shadow"
+              :class="{ 'max-h-56': errors.amountError }"
+            >
+              <p
+                class="p-5 opacity-0 transition-opacity duration-400"
+                :class="{ 'opacity-100': errors.amountError }"
+              >
+                {{ errors.amountError || ":)" }}
+              </p>
+            </div>
           </div>
           <div class="flex items-center justify-center gap-3">
             <input
@@ -135,7 +146,6 @@ export default {
       currentMonth: new Date().getMonth() + 1,
       currentYear: new Date().getFullYear(),
       errors: {},
-      hasAnyErrors: false,
       length: 1,
       unit: "MONTHS",
     };
@@ -200,11 +210,11 @@ export default {
       if (this.amount <= 0) {
         this.$set(
           this.errors,
-          "nonPositiveAmount",
+          "amountError",
           "Vänligen ange en summa pengar för din budget"
         );
       } else {
-        this.$delete(this.errors, "nonPositiveAmount");
+        this.$delete(this.errors, "amountError");
       }
     },
     validateEndDate() {
@@ -223,11 +233,11 @@ export default {
       ) {
         this.$set(
           this.errors,
-          "endsBeforeToday",
+          "dateError",
           "Din budget kan inte sluta innan dagens datum. Välj ett senare startdatum eller en längre period"
         );
       } else {
-        this.$delete(this.errors, "endsBeforeToday");
+        this.$delete(this.errors, "dateError");
       }
     },
   },
