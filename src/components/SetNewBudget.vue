@@ -31,6 +31,8 @@
             type="number"
             class="w-14 rounded-sm text-gray-600 text-right pr-px shadow"
             v-model="length"
+            min="1"
+            max="99"
           />
           <select
             id="unit"
@@ -58,6 +60,7 @@
             class="w-14 rounded-sm text-gray-600 text-right pr-px shadow"
             v-model="amount"
             min="1"
+            max="4294967295"
           />
           <select id="currency" class="rounded-sm text-gray-600 shadow">
             <option value="SEK">kr</option>
