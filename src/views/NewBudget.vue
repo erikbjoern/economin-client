@@ -16,9 +16,7 @@
         </h2>
       </div>
       <div v-if="!$store.state.currentBudget.id" class="h-screen">
-        <h1
-          class="text-center text-lg text-gray-200 font-semibold font-main"
-        >
+        <h1 class="text-center text-lg text-gray-200 font-semibold font-main">
           Ny budget
         </h1>
         <form @submit="createBudget" class="flex flex-col space-y-10">
@@ -91,14 +89,26 @@
                 <option value="YEN">¥</option>
               </select>
               <div
-                class="pointer-events-none col-span-full max-h-0 transition-min-max-h duration-400 text-white opacity-80 w-56 bg-red-900 rounded-lg mx-auto shadow"
-                :class="{ 'max-h-56': errors.amountError }"
+                class="relative col-span-full max-h-0 transition-min-max-h duration-400 text-white opacity-80 w-56 bg-red-900 rounded-lg mx-auto shadow"
+                :class="{
+                  'max-h-56': errors.amountError || errors.createBudgetError,
+                }"
               >
+                <div
+                  v-if="errors.createBudgetError"
+                  class="absolute top-1 font-bold right-2 text-white"
+                  @click="$delete(errors, 'createBudgetError')"
+                >
+                  X
+                </div>
                 <p
                   class="p-5 opacity-0 transition-opacity duration-400"
-                  :class="{ 'opacity-100': errors.amountError }"
+                  :class="{
+                    'opacity-100':
+                      errors.amountError || errors.createBudgetError,
+                  }"
                 >
-                  {{ errors.amountError || ":)" }}
+                  {{ errors.amountError || errors.createBudgetError }}
                 </p>
               </div>
             </div>
@@ -220,7 +230,11 @@ export default {
 
         this.$store.commit("UPDATE_CURRENT_BUDGET", result.data.createBudget);
       } catch (error) {
-        debugger;
+        const createBudgetErrorMessage =
+          error.networkError?.message ||
+          "Något gick fel. Har du redan en aktiv budget för detta datum?";
+
+        this.$set(this.errors, "createBudgetError", createBudgetErrorMessage);
       }
 
       this.isSaving = false;
@@ -263,7 +277,10 @@ export default {
   watch: {
     amount: "validateAmount",
     calendarData: {
-      handler: "validateEndDate",
+      handler() {
+        this.validateEndDate();
+        this.$delete(this.errors, "createBudgetError");
+      },
       deep: true,
     },
     errors: {
