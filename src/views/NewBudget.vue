@@ -21,10 +21,7 @@
         >
           Ny budget
         </h1>
-        <form
-          @submit="createBudget"
-          class="flex flex-col space-y-10 mt-8"
-        >
+        <form @submit="createBudget" class="flex flex-col space-y-10 mt-8" ref="form">
           <div class="formgrid grid grid-cols-auto-3 gap-2">
             <label class="font-semibold text-gray-200 mb-6">Från:</label>
             <functional-calendar
@@ -114,7 +111,11 @@
           </div>
           <button
             type="submit"
-            class="bg-emerald-500 shadow-lg rounded w-36 mx-auto text-cyan-900 font-semibold pb-px"
+            class="bg-emerald-500 shadow-lg rounded w-36 mx-auto text-cyan-900 font-semibold pb-px transition-opacity"
+            :class="{
+              'opacity-50': hasAnyErrors,
+              'pointer-events-none': hasAnyErrors,
+            }"
           >
             Spara
           </button>
@@ -146,6 +147,7 @@ export default {
       currentMonth: new Date().getMonth() + 1,
       currentYear: new Date().getFullYear(),
       errors: {},
+      hasAnyErrors: false,
       length: 1,
       unit: "MONTHS",
     };
@@ -185,6 +187,11 @@ export default {
     async createBudget(event) {
       event.preventDefault();
 
+      if (this.hasAnyErrors) {
+        console.log("Returning from createBudget because of present errors, apparently")
+        return
+      };
+      
       try {
         const result = await this.$apollo.mutate({
           mutation: CREATE_BUDGET,
