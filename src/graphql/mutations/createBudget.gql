@@ -1,0 +1,12 @@
+mutation createBudget($input: CreateBudgetInput) {
+  createBudget(input: $input) {
+    id
+    amount
+    startDay
+    startMonth
+    startYear
+    length
+    unit
+    recurring
+  }
+}
